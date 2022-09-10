@@ -68,11 +68,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void delete(CourseModel courseModel) {
-        courseRepository.delete(courseModel);
-    }
-
-    @Override
     public List<CourseModel> findAll() {
 
         return courseRepository.findAll();
