@@ -30,6 +30,9 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Log4j2
 @RestController
 @RequestMapping("/courses")
@@ -124,6 +127,17 @@ public class CourseController {
             courseModelPage = courseService.findAll(SpecificationTemplate.courseUserId(userId).and(spec), pageable);
         } else {
             courseModelPage = courseService.findAll(spec, pageable);
+        }
+
+        if (!courseModelPage.isEmpty()) {
+
+            courseModelPage
+                    .forEach(courseModel -> {
+                        courseModel
+                                .add(linkTo(methodOn(CourseController.class).getOneCourse(courseModel.getCourseId()))
+                                        .withSelfRel());
+                    });
+
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(courseModelPage);

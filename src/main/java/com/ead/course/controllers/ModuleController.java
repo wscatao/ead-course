@@ -27,9 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Log4j2
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -127,6 +130,18 @@ public class ModuleController {
 
         var moduleModelPage = moduleService
                 .findAllByCourse(SpecificationTemplate.moduleCourseId(courseId).and(spec), pageable);
+
+        if (!moduleModelPage.isEmpty()) {
+
+            moduleModelPage
+                    .forEach(moduleModel -> {
+                        moduleModel
+                                .add(linkTo(methodOn(ModuleController.class)
+                                        .getOneModule(moduleModel.getCourse().getCourseId(), moduleModel.getModuleId()))
+                                        .withSelfRel());
+                    });
+
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(moduleModelPage);
     }
