@@ -30,6 +30,10 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Log4j2
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -129,6 +133,18 @@ public class LessonController {
 
         var pageLessons = lessonService.findAllByModule(
                 SpecificationTemplate.lessonModuleId(moduleId).and(spec), pageable);
+
+        if (!pageLessons.isEmpty()) {
+
+            pageLessons
+                    .forEach(lessonModel -> {
+                        lessonModel
+                                .add(linkTo(methodOn(LessonController.class)
+                                        .getOneLesson(lessonModel.getModule().getModuleId(), lessonModel.getLessonId()))
+                                        .withSelfRel());
+                    });
+
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(pageLessons);
     }

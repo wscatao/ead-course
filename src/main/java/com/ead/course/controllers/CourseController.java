@@ -21,14 +21,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Log4j2
 @RestController
 @RequestMapping("/courses")
@@ -113,13 +117,30 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<Page<CourseModel>> getAllCourses(
             SpecificationTemplate.CourseSpec spec,
-            @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) UUID userId
     ) {
 
-        Page<CourseModel> courseModelPage = courseService.findAll(spec, pageable);
+        Page<CourseModel> courseModelPage = null;
+
+        if (userId != null) {
+            courseModelPage = courseService.findAll(SpecificationTemplate.courseUserId(userId).and(spec), pageable);
+        } else {
+            courseModelPage = courseService.findAll(spec, pageable);
+        }
+
+        if (!courseModelPage.isEmpty()) {
+
+            courseModelPage
+                    .forEach(courseModel -> {
+                        courseModel
+                                .add(linkTo(methodOn(CourseController.class).getOneCourse(courseModel.getCourseId()))
+                                        .withSelfRel());
+                    });
+
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(courseModelPage);
-
     }
 
     @GetMapping("/{courseId}")
