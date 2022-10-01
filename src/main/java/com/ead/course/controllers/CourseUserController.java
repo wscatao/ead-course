@@ -81,11 +81,8 @@ public class CourseUserController {
         }
 
         var courseUserModel =
-                courseUserService.save(courseModelOptional.get().convertToCourseUserModel(subscriptionDto.getUserId()));
-
-        /**
-         * Notificar AuthUser que foi feito a subscrição em um curso.
-         */
+                courseUserService.saveAndSendSubscriptionUserInCourse(
+                        courseModelOptional.get().convertToCourseUserModel(subscriptionDto.getUserId()));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(courseUserModel);
     }
