@@ -129,7 +129,7 @@ public class CourseController {
     public ResponseEntity<Page<CourseModel>> getAllCourses(
             SpecificationTemplate.CourseSpec spec,
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
-            @RequestParam(required = false) UUID userId
+            @RequestParam(required = false, value = "userId") UUID userId
     ) {
 
         Page<CourseModel> courseModelPage = null;
