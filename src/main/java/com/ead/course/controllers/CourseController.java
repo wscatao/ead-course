@@ -54,7 +54,7 @@ public class CourseController {
 
         courseValidator.validate(courseDto, errors);
 
-        if(errors.hasErrors()) {
+        if (errors.hasErrors()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
         }
 
@@ -131,14 +131,9 @@ public class CourseController {
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
             @RequestParam(required = false, value = "userId") UUID userId
     ) {
-
         Page<CourseModel> courseModelPage = null;
 
-        if (userId != null) {
-            courseModelPage = courseService.findAll(SpecificationTemplate.courseUserId(userId).and(spec), pageable);
-        } else {
-            courseModelPage = courseService.findAll(spec, pageable);
-        }
+        courseModelPage = courseService.findAll(spec, pageable);
 
         if (!courseModelPage.isEmpty()) {
 
