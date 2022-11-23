@@ -1,12 +1,11 @@
 package com.ead.course.services.impl;
 
-import com.ead.course.clients.AuthUserClient;
 import com.ead.course.models.CourseModel;
 import com.ead.course.models.ModuleModel;
 import com.ead.course.repositories.CourseRepository;
-import com.ead.course.repositories.CourseUserRepository;
 import com.ead.course.repositories.LessonRepository;
 import com.ead.course.repositories.ModuleRepository;
+import com.ead.course.repositories.UserRepository;
 import com.ead.course.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,16 +31,10 @@ public class CourseServiceImpl implements CourseService {
     private LessonRepository lessonRepository;
 
     @Autowired
-    private CourseUserRepository courseUserRepository;
-
-    @Autowired
-    private AuthUserClient authUserClient;
-
+    private UserRepository courseUserRepository;
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
-
-        boolean deleteCourseUserInAuthUser = false;
 
         var moduleModelList = moduleRepository.findAllModulesIntoCourse(courseModel.getCourseId());
 
@@ -50,19 +43,7 @@ public class CourseServiceImpl implements CourseService {
             deleteModules(moduleModelList);
         }
 
-        var courseUserModelList = courseUserRepository
-                .findAllCourseUserIntoCourse(courseModel.getCourseId());
-
-        if (!courseUserModelList.isEmpty()) {
-            courseUserRepository.deleteAll(courseUserModelList);
-            deleteCourseUserInAuthUser = true;
-        }
-
         courseRepository.delete(courseModel);
-
-        if (deleteCourseUserInAuthUser) {
-            authUserClient.deleteCourseInAuthUser(courseModel.getCourseId());
-        }
     }
 
     private void deleteModules(List<ModuleModel> moduleModelList) {
