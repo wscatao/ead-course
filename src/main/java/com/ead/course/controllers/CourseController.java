@@ -131,22 +131,31 @@ public class CourseController {
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
             @RequestParam(required = false, value = "userId") UUID userId
     ) {
-        Page<CourseModel> courseModelPage = null;
 
-        courseModelPage = courseService.findAll(spec, pageable);
+        if (userId != null) {
 
-        if (!courseModelPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(courseService.findAll(SpecificationTemplate.courseUserId(userId).and(spec), pageable));
+        } else {
 
-            courseModelPage
-                    .forEach(courseModel -> {
-                        courseModel
-                                .add(linkTo(methodOn(CourseController.class).getOneCourse(courseModel.getCourseId()))
-                                        .withSelfRel());
-                    });
+            Page<CourseModel> courseModelPage = null;
 
+            courseModelPage = courseService.findAll(spec, pageable);
+
+            if (!courseModelPage.isEmpty()) {
+
+                courseModelPage
+                        .forEach(courseModel -> {
+                            courseModel
+                                    .add(linkTo(methodOn(CourseController.class)
+                                            .getOneCourse(courseModel.getCourseId()))
+                                            .withSelfRel());
+                        });
+
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(courseModelPage);
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(courseModelPage);
     }
 
     @GetMapping("/{courseId}")
