@@ -18,6 +18,8 @@ spring:
     properties:
       hibernate:
         show_sql: true
+  rabbitmq:
+    addresses: ${RABBIT_MQ_URL}
 
 ead:
   api:
