@@ -32,6 +32,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private UserRepository courseUserRepository;
+
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
@@ -42,6 +43,8 @@ public class CourseServiceImpl implements CourseService {
 
             deleteModules(moduleModelList);
         }
+
+        courseRepository.deleteCourseUserByCourse(courseModel.getCourseId());
 
         courseRepository.delete(courseModel);
     }
@@ -77,5 +80,16 @@ public class CourseServiceImpl implements CourseService {
     public Page<CourseModel> findAll(Specification<CourseModel> spec, Pageable pageable) {
 
         return courseRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public boolean existsByCourseAndUser(UUID courseId, UUID userId) {
+        return courseRepository.existsByCourseAndUser(courseId, userId);
+    }
+
+    @Transactional
+    @Override
+    public void saveSubscriptionUserInCourse(UUID courseId, UUID userId) {
+        courseRepository.saveCourseUser(courseId, userId);
     }
 }
