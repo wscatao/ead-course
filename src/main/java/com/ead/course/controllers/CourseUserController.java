@@ -63,17 +63,17 @@ public class CourseUserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Course Not Found.");
         }
 
-        if(courseService.existsByCourseAndUser(courseId, subscriptionDto.getUserId())) {
+        if (courseService.existsByCourseAndUser(courseId, subscriptionDto.getUserId())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: subscription already exists!");
         }
 
         var userModelOptional = userService.findById(subscriptionDto.getUserId());
 
-        if(!userModelOptional.isPresent()) {
+        if (!userModelOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
 
-        if(userModelOptional.get().getUserStatus().equals(UserStatus.BLOCKED.toString())) {
+        if (userModelOptional.get().getUserStatus().equals(UserStatus.BLOCKED.toString())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User is blocked.");
         }
 
